@@ -241,6 +241,29 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
     touchStartRef.current = null;
   }, [isDragging, dragY, onClose]);
 
+  // ── Swipe left/right on image to change frames ──
+  const frameSwipeRef = useRef<{ startX: number; startY: number } | null>(null);
+
+  const handleFrameSwipeStart = useCallback((e: React.TouchEvent) => {
+    if (!isMobile) return;
+    frameSwipeRef.current = { startX: e.touches[0].clientX, startY: e.touches[0].clientY };
+  }, [isMobile]);
+
+  const handleFrameSwipeEnd = useCallback((e: React.TouchEvent) => {
+    if (!frameSwipeRef.current || !isMobile) return;
+    const dx = e.changedTouches[0].clientX - frameSwipeRef.current.startX;
+    const dy = e.changedTouches[0].clientY - frameSwipeRef.current.startY;
+    frameSwipeRef.current = null;
+    // Only count horizontal swipes (dx bigger than dy, and at least 40px)
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      if (dx < 0) {
+        setActiveFrame(f => Math.min(f + 1, frames.length - 1));
+      } else {
+        setActiveFrame(f => Math.max(f - 1, 0));
+      }
+    }
+  }, [isMobile, frames.length]);
+
   const nextProject =
     project && allProjects
       ? allProjects[(allProjects.findIndex((p) => p.id === project.id) + 1) % allProjects.length]
@@ -354,7 +377,7 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
                 {/* Close bar */}
                 <div className="flex items-center justify-between px-4 pb-2">
                   <span
-                    className="text-muted-foreground truncate max-w-[70%]"
+                    className="text-foreground/70 truncate max-w-[70%]"
                     style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", fontWeight: 500 }}
                   >
                     {project.company} · Case Study
@@ -376,6 +399,8 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
               <div
                 className="relative flex-shrink-0 overflow-hidden md:rounded-t-3xl bg-[#0a0a0a]"
                 style={{ height: isMobile ? "clamp(180px, 32vh, 260px)" : "clamp(220px, 42vh, 380px)" }}
+                onTouchStart={handleFrameSwipeStart}
+                onTouchEnd={handleFrameSwipeEnd}
               >
                 <AnimatePresence mode="wait">
                   <motion.button
@@ -487,8 +512,8 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
                   </AnimatePresence>
 
                   {/* Dot + Prev/Next row */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5" role="tablist" aria-label="Frames">
+                  <div className="flex items-center justify-center md:justify-between">
+                    <div className="flex items-center gap-1 md:gap-1.5" role="tablist" aria-label="Frames">
                       {frames.map((_, i) => (
                         <button
                           key={i}
@@ -496,16 +521,25 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
                           aria-selected={i === activeFrame}
                           aria-label={`Frame ${i + 1}: ${frames[i].label}`}
                           onClick={() => setActiveFrame(i)}
-                          className="rounded-full transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                          className="relative flex items-center justify-center rounded-full transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
                           style={{
-                            width: i === activeFrame ? "20px" : "6px",
-                            height: "6px",
-                            background: i === activeFrame ? project.accentColor : "rgba(255,255,255,0.4)",
+                            /* 44px touch target via min dimensions + padding */
+                            minWidth: "44px",
+                            minHeight: "44px",
                           }}
-                        />
+                        >
+                          <span
+                            className="block rounded-full transition-all duration-200"
+                            style={{
+                              width: i === activeFrame ? "20px" : "8px",
+                              height: "8px",
+                              background: i === activeFrame ? project.accentColor : "rgba(255,255,255,0.55)",
+                            }}
+                          />
+                        </button>
                       ))}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="hidden md:flex items-center gap-2">
                       <button
                         onClick={() => setActiveFrame(f => Math.max(f - 1, 0))}
                         disabled={activeFrame === 0}
