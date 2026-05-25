@@ -213,6 +213,14 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
+  const nextProject =
+    project && allProjects
+      ? allProjects[(allProjects.findIndex((p) => p.id === project.id) + 1) % allProjects.length]
+      : null;
+
+  const frames = project ? getFrames(project) : [];
+  const current = frames[activeFrame];
+
   // ── Swipe-to-dismiss on mobile ──
   const [dragY, setDragY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -269,14 +277,6 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
       }
     }
   }, [isMobile, frames.length]);
-
-  const nextProject =
-    project && allProjects
-      ? allProjects[(allProjects.findIndex((p) => p.id === project.id) + 1) % allProjects.length]
-      : null;
-
-  const frames = project ? getFrames(project) : [];
-  const current = frames[activeFrame];
 
   useEffect(() => {
     setActiveFrame(0);
