@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from "motion/react";
 import { X, ArrowUpRight, CheckCircle2, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import type { Project } from "./projects-data";
+import { useIsMobile } from "./ui/use-mobile";
 
 // ── Actual Figma design screenshots ───────────────────────────────────────────
 import omenImg from "../../imports/image.png";
@@ -204,6 +205,41 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const dragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number } | null>(null);
+  const isMobile = useIsMobile();
+
+  // ── Swipe-to-dismiss on mobile ──
+  const [dragY, setDragY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartRef = useRef<{ y: number; scrollTop: number } | null>(null);
+  const sheetRef = useRef<HTMLDivElement>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const el = sheetRef.current;
+    if (!el || !isMobile) return;
+    touchStartRef.current = { y: e.touches[0].clientY, scrollTop: el.scrollTop };
+  }, [isMobile]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStartRef.current || !isMobile) return;
+    const el = sheetRef.current;
+    if (!el) return;
+    const dy = e.touches[0].clientY - touchStartRef.current.y;
+    // Only drag-to-dismiss when scrolled to the top and pulling down
+    if (touchStartRef.current.scrollTop <= 0 && dy > 0) {
+      setIsDragging(true);
+      setDragY(dy);
+    }
+  }, [isMobile]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging) { touchStartRef.current = null; return; }
+    if (dragY > 120) {
+      onClose();
+    }
+    setDragY(0);
+    setIsDragging(false);
+    touchStartRef.current = null;
+  }, [isDragging, dragY, onClose]);
 
   const nextProject =
     project && allProjects
@@ -297,12 +333,49 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
             transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
             className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 pointer-events-none"
           >
-            <div className="pointer-events-auto w-full md:max-w-3xl max-h-[94vh] md:max-h-[90vh] overflow-y-auto rounded-t-3xl md:rounded-3xl bg-card border border-border shadow-2xl flex flex-col">
+            <div
+              ref={sheetRef}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              className="pointer-events-auto w-full md:max-w-3xl max-h-[92vh] md:max-h-[90vh] overflow-y-auto rounded-t-3xl md:rounded-3xl bg-card border border-border shadow-2xl flex flex-col"
+              style={{
+                transform: isDragging ? `translateY(${dragY}px)` : undefined,
+                transition: isDragging ? "none" : "transform 0.3s ease-out",
+              }}
+            >
+
+              {/* ── Mobile drag handle + close bar ── */}
+              <div className="md:hidden sticky top-0 z-10 bg-card rounded-t-3xl flex-shrink-0">
+                {/* Drag pill */}
+                <div className="flex justify-center pt-2.5 pb-1">
+                  <div className="w-9 h-1 rounded-full bg-muted-foreground/30" />
+                </div>
+                {/* Close bar */}
+                <div className="flex items-center justify-between px-4 pb-2">
+                  <span
+                    className="text-muted-foreground truncate max-w-[70%]"
+                    style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", fontWeight: 500 }}
+                  >
+                    {project.company} · Case Study
+                  </span>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary text-foreground text-xs font-medium active:bg-secondary/80 transition-colors"
+                    style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.75rem" }}
+                    aria-label="Close case study"
+                  >
+                    <X size={14} aria-hidden="true" />
+                    Close
+                  </button>
+                </div>
+              </div>
 
               {/* ── Image viewer ── */}
               <div
-                className="relative flex-shrink-0 overflow-hidden rounded-t-3xl md:rounded-t-3xl bg-[#0a0a0a]"
-                style={{ height: "clamp(220px, 42vh, 380px)" }}
+                className="relative flex-shrink-0 overflow-hidden md:rounded-t-3xl bg-[#0a0a0a]"
+                style={{ height: isMobile ? "clamp(180px, 32vh, 260px)" : "clamp(220px, 42vh, 380px)" }}
               >
                 <AnimatePresence mode="wait">
                   <motion.button
@@ -339,7 +412,7 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
                 <button
                   type="button"
                   onClick={() => setLightboxOpen(true)}
-                  className="absolute top-4 right-16 flex items-center gap-1.5 px-3 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white hover:bg-black/75 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                  className="hidden md:flex absolute top-4 right-16 items-center gap-1.5 px-3 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white hover:bg-black/75 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
                   aria-label="View full image"
                   style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", fontWeight: 500 }}
                 >
@@ -351,7 +424,7 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
                 <button
                   ref={closeButtonRef}
                   onClick={onClose}
-                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-black/75 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                  className="hidden md:flex absolute top-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 items-center justify-center text-white hover:bg-black/75 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
                   aria-label="Close project details"
                 >
                   <X size={16} aria-hidden="true" />
@@ -392,7 +465,7 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
                 </div>
 
                 {/* Caption */}
-                <div className="absolute bottom-0 left-0 right-0 px-5 pb-4">
+                <div className="absolute bottom-0 left-0 right-0 px-4 md:px-5 pb-3 md:pb-4">
                   <AnimatePresence mode="wait">
                     <motion.p
                       key={activeFrame}
@@ -400,7 +473,7 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="text-white mb-3"
+                      className="text-white mb-3 hidden md:block"
                       style={{
                         fontFamily: "'Inter', sans-serif",
                         fontSize: "0.8rem",
@@ -455,7 +528,7 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
               </div>
 
               {/* ── Case study content ── */}
-              <div className="p-6 md:p-8">
+              <div className="p-5 md:p-8">
                 {/* Lead: metric → title → meta */}
                 <div className="mb-6">
                   <div
@@ -594,13 +667,13 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
                 </div>
 
                 {/* Footer actions: external link + next case study */}
-                <div className="pt-5 border-t border-border flex flex-wrap items-center gap-3 justify-between">
+                <div className="pt-5 border-t border-border flex flex-col md:flex-row md:flex-wrap items-stretch md:items-center gap-3 md:justify-between">
                   {project.externalLink ? (
                     <a
                       href={project.externalLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-white transition-all hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-white transition-all hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                       style={{
                         background: project.accentColor,
                         fontFamily: "'Inter', sans-serif",
@@ -620,7 +693,7 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
                     <button
                       type="button"
                       onClick={() => onNavigateNext(project)}
-                      className="group inline-flex items-center gap-2 px-4 py-2.5 rounded-full border border-border text-foreground hover:bg-secondary transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                      className="group inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-border text-foreground hover:bg-secondary transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
                       style={{ fontFamily: "'Inter', sans-serif", fontWeight: 500, fontSize: "0.82rem" }}
                       aria-label={`Open next case study: ${nextProject.title}`}
                     >
