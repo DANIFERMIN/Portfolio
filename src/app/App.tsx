@@ -4,7 +4,7 @@ import { Mail, Linkedin, ArrowUpRight, Figma, Download, Globe, GraduationCap, Br
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { ProjectCard } from "./components/ProjectCard";
-import { ProjectModal } from "./components/ProjectModal";
+import { ProjectPage } from "./components/ProjectPage";
 import { ProcessSection } from "./components/ProcessSection";
 import { projects, type Project, type FilterGroup } from "./components/projects-data";
 
@@ -137,8 +137,25 @@ const education = [
 export default function App() {
   const { isDark, mode, cycle } = useTheme();
   useDocumentMeta();
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [activeFilter, setActiveFilter] = useState<"All" | FilterGroup>("All");
+
+  // ── Hash-based routing for project pages ──
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const parseHash = () => {
+      const hash = window.location.hash;
+      const match = hash.match(/^#\/project\/(.+)$/);
+      setCurrentProjectId(match ? match[1] : null);
+    };
+    parseHash();
+    window.addEventListener("hashchange", parseHash);
+    return () => window.removeEventListener("hashchange", parseHash);
+  }, []);
+
+  const currentProject = currentProjectId
+    ? projects.find((p) => p.id === currentProjectId) ?? null
+    : null;
 
   const filteredProjects = useMemo(
     () =>
@@ -148,17 +165,18 @@ export default function App() {
     [activeFilter]
   );
 
-  // For "Next case study" navigation inside the modal
-  const goToNext = (current: Project) => {
-    const idx = projects.findIndex((p) => p.id === current.id);
-    const next = projects[(idx + 1) % projects.length];
-    setSelectedProject(next);
+  const navigateToProject = (project: Project) => {
+    window.location.hash = `#/project/${project.id}`;
+  };
+
+  const navigateBack = () => {
+    window.location.hash = "";
   };
 
   const handleCardKeyDown = (e: React.KeyboardEvent, project: Project) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      setSelectedProject(project);
+      navigateToProject(project);
     }
   };
 
@@ -167,6 +185,10 @@ export default function App() {
       className={`min-h-screen bg-background text-foreground${isDark ? " dark" : ""}`}
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
+      {currentProject ? (
+        <ProjectPage project={currentProject} onBack={navigateBack} />
+      ) : (
+      <>
       {/* Skip to main content — accessibility */}
       <a
         href="#main-content"
@@ -275,7 +297,7 @@ export default function App() {
                   <ProjectCard
                     project={project}
                     index={i}
-                    onClick={setSelectedProject}
+                    onClick={navigateToProject}
                   />
                 </div>
               ))}
@@ -915,13 +937,8 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Project Modal */}
-      <ProjectModal
-        project={selectedProject}
-        allProjects={projects}
-        onClose={() => setSelectedProject(null)}
-        onNavigateNext={goToNext}
-      />
+      </>
+      )}
     </div>
   );
 }
