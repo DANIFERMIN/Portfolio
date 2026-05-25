@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Mail, Linkedin, ArrowUpRight, Figma, Download, Globe, GraduationCap, Briefcase, Quote } from "lucide-react";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
@@ -185,10 +185,25 @@ export default function App() {
       className={`min-h-screen bg-background text-foreground${isDark ? " dark" : ""}`}
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
+      <AnimatePresence mode="wait">
       {currentProject ? (
-        <ProjectPage project={currentProject} onBack={navigateBack} />
+        <motion.div
+          key={`project-${currentProject.id}`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+        >
+          <ProjectPage project={currentProject} onBack={navigateBack} />
+        </motion.div>
       ) : (
-      <>
+      <motion.div
+        key="portfolio"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+      >
       {/* Skip to main content — accessibility */}
       <a
         href="#main-content"
@@ -937,8 +952,9 @@ export default function App() {
         </div>
       </footer>
 
-      </>
+      </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 }

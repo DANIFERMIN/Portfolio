@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
+import { useState } from "react";
 import type { Project } from "./projects-data";
 import { cardImages } from "./card-images";
 
@@ -11,6 +12,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, index, onClick }: ProjectCardProps) {
   const designImg = cardImages[project.id];
+  const [hovered, setHovered] = useState(false);
 
   return (
     <motion.article
@@ -19,6 +21,8 @@ export function ProjectCard({ project, index, onClick }: ProjectCardProps) {
       viewport={{ once: true, margin: "-80px" }}
       transition={{ duration: 0.5, delay: index * 0.08 }}
       onClick={() => onClick(project)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       className={`group relative rounded-2xl overflow-hidden cursor-pointer bg-card border border-border hover:border-transparent transition-all duration-300 hover:shadow-2xl ${
         project.featured ? "md:col-span-2" : ""
       }`}
@@ -136,7 +140,14 @@ export function ProjectCard({ project, index, onClick }: ProjectCardProps) {
               {project.title}
             </h3>
           </div>
-          <div className="flex-shrink-0 w-9 h-9 rounded-full border border-border flex items-center justify-center text-muted-foreground transition-all duration-300 group-hover:border-foreground group-hover:text-foreground group-hover:bg-foreground group-hover:text-background">
+          <div
+            className="flex-shrink-0 w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300"
+            style={{
+              background: hovered ? project.accentColor : "transparent",
+              borderColor: hovered ? "transparent" : undefined,
+              color: hovered ? "white" : undefined,
+            }}
+          >
             <ArrowUpRight size={16} />
           </div>
         </div>

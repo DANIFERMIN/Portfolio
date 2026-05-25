@@ -136,12 +136,7 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
   const nextProject = projects[(projects.findIndex((p) => p.id === project.id) + 1) % projects.length];
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen bg-background"
-    >
+    <div className="min-h-screen bg-background">
       {/* ── Sticky back bar ── */}
       <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-4xl mx-auto px-4 md:px-8 flex items-center justify-between h-14">
@@ -479,6 +474,6 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
           </div>
         </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 }
