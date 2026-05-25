@@ -2,7 +2,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, ArrowUpRight, CheckCircle2, ChevronLeft, ChevronRight, Maximize2 } from "lucide-react";
 import { useEffect, useRef, useState, useCallback } from "react";
 import type { Project } from "./projects-data";
-import { useIsMobile } from "./ui/use-mobile";
 
 // ── Actual Figma design screenshots ───────────────────────────────────────────
 import omenImg from "../../imports/image.png";
@@ -205,7 +204,14 @@ export function ProjectModal({ project, allProjects, onClose, onNavigateNext }: 
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const dragRef = useRef<{ startX: number; startY: number; baseX: number; baseY: number } | null>(null);
-  const isMobile = useIsMobile();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 767px)");
+    const onChange = () => setIsMobile(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
 
   // ── Swipe-to-dismiss on mobile ──
   const [dragY, setDragY] = useState(0);
