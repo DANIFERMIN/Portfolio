@@ -43,9 +43,9 @@ export function ProjectCard({ project, index, onClick }: ProjectCardProps) {
         />
         {/* Overlay */}
         <div
-          className="absolute inset-0 transition-opacity duration-300 opacity-40 group-hover:opacity-60"
+          className="absolute inset-0 transition-opacity duration-300 opacity-70 group-hover:opacity-80"
           style={{
-            background: `linear-gradient(160deg, ${project.accentColor}33 0%, #00000099 100%)`,
+            background: `linear-gradient(160deg, ${project.accentColor}33 0%, #000000CC 100%)`,
           }}
         />
 
@@ -69,8 +69,8 @@ export function ProjectCard({ project, index, onClick }: ProjectCardProps) {
         <div
           className="absolute top-4 right-4 px-3 py-1 rounded-full backdrop-blur-sm"
           style={{
-            background: `${project.accentColor}22`,
-            border: `1px solid ${project.accentColor}44`,
+            background: "rgba(0,0,0,0.7)",
+            border: `1px solid ${project.accentColor}66`,
           }}
         >
           <span
@@ -78,7 +78,7 @@ export function ProjectCard({ project, index, onClick }: ProjectCardProps) {
               fontFamily: "'Inter', sans-serif",
               fontSize: "0.7rem",
               fontWeight: 500,
-              color: project.accentColor,
+              color: "white",
             }}
           >
             {project.category}

@@ -143,14 +143,14 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 text-foreground hover:text-foreground transition-colors"
             style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.82rem", fontWeight: 500 }}
           >
             <ArrowLeft size={16} />
             All projects
           </button>
           <span
-            className="text-muted-foreground truncate max-w-[50%]"
+            className="text-foreground/70 truncate max-w-[50%]"
             style={{ fontFamily: "'Inter', sans-serif", fontSize: "0.72rem", fontWeight: 500 }}
           >
             {project.company} · {project.year}
@@ -217,8 +217,8 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="relative rounded-2xl overflow-hidden bg-[#0a0a0a] mb-8"
-          style={{ height: isMobile ? "clamp(200px, 40vh, 300px)" : "clamp(300px, 50vh, 480px)" }}
+          className="relative rounded-t-2xl overflow-hidden bg-[#0a0a0a]"
+          style={{ height: isMobile ? "clamp(240px, 45vh, 360px)" : "clamp(300px, 50vh, 480px)" }}
           onTouchStart={handleFrameSwipeStart}
           onTouchEnd={handleFrameSwipeEnd}
         >
@@ -229,23 +229,23 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
             style={{ objectFit: "cover", objectPosition: current.objectPosition }}
           />
 
-          {/* Gradient scrim — covers full image for badge and caption readability */}
+          {/* Gradient scrim — top only for badges */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.75) 80%, rgba(0,0,0,0.92) 100%)",
+              background: "linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.1) 35%, transparent 100%)",
             }}
           />
 
-          {/* Badges */}
+          {/* Badges — solid opaque backgrounds */}
           <div className="absolute top-4 left-4 flex items-center gap-2">
             {current.isDesign && (
               <span
                 className="px-2.5 py-1 rounded-md text-white"
                 style={{
-                  background: "rgba(0,0,0,0.6)",
+                  background: "rgba(0,0,0,0.8)",
                   backdropFilter: "blur(8px)",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  border: "1px solid rgba(255,255,255,0.1)",
                   fontFamily: "'Inter', sans-serif",
                   fontSize: "0.6rem",
                   fontWeight: 600,
@@ -259,8 +259,7 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
             <span
               className="px-3 py-1 rounded-full text-white"
               style={{
-                background: `${project.accentColor}CC`,
-                border: `1px solid ${project.accentColor}`,
+                background: project.accentColor,
                 fontFamily: "'Inter', sans-serif",
                 fontSize: "0.7rem",
                 fontWeight: 600,
@@ -271,57 +270,47 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
               {current.label}
             </span>
           </div>
+        </motion.div>
 
-          {/* Caption + dots */}
-          <div className="absolute bottom-0 left-0 right-0 px-4 md:px-6 pb-4">
-            <p
-              className="text-white mb-3 hidden md:block"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "0.82rem",
-                lineHeight: 1.55,
-                textShadow: "0 1px 4px rgba(0,0,0,0.7), 0 0 12px rgba(0,0,0,0.4)",
-                maxWidth: "80%",
-              }}
-            >
-              {current.caption}
-            </p>
-            {/* Mobile caption */}
-            <p
-              className="text-white mb-3 md:hidden"
-              style={{
-                fontFamily: "'Inter', sans-serif",
-                fontSize: "0.75rem",
-                lineHeight: 1.45,
-                textShadow: "0 1px 4px rgba(0,0,0,0.7), 0 0 12px rgba(0,0,0,0.4)",
-              }}
-            >
-              {current.caption}
-            </p>
-            <div className="flex items-center justify-center md:justify-between">
-              {/* Dots */}
-              <div className="flex items-center gap-1 md:gap-1.5" role="tablist" aria-label="Frames">
-                {frames.map((_, i) => (
-                  <button
-                    key={i}
-                    role="tab"
-                    aria-selected={i === activeFrame}
-                    aria-label={`Frame ${i + 1}: ${frames[i].label}`}
-                    onClick={() => setActiveFrame(i)}
-                    className="relative flex items-center justify-center rounded-full transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
-                    style={{ minWidth: "44px", minHeight: "44px" }}
-                  >
-                    <span
-                      className="block rounded-full transition-all duration-200"
-                      style={{
-                        width: i === activeFrame ? "20px" : "8px",
-                        height: "8px",
-                        background: i === activeFrame ? project.accentColor : "rgba(255,255,255,0.55)",
-                      }}
-                    />
-                  </button>
-                ))}
-              </div>
+        {/* Caption + dots — solid dark bar below image */}
+        <div
+          className="rounded-b-2xl px-4 md:px-6 pt-3 pb-3 mb-8"
+          style={{ background: "#111111" }}
+        >
+          <p
+            className="text-white/90 mb-3"
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: isMobile ? "0.75rem" : "0.82rem",
+              lineHeight: 1.55,
+            }}
+          >
+            {current.caption}
+          </p>
+          <div className="flex items-center justify-center md:justify-between">
+            {/* Dots */}
+            <div className="flex items-center gap-1 md:gap-1.5" role="tablist" aria-label="Frames">
+              {frames.map((_, i) => (
+                <button
+                  key={i}
+                  role="tab"
+                  aria-selected={i === activeFrame}
+                  aria-label={`Frame ${i + 1}: ${frames[i].label}`}
+                  onClick={() => setActiveFrame(i)}
+                  className="relative flex items-center justify-center rounded-full transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                  style={{ minWidth: "44px", minHeight: "44px" }}
+                >
+                  <span
+                    className="block rounded-full transition-all duration-200"
+                    style={{
+                      width: i === activeFrame ? "20px" : "8px",
+                      height: "8px",
+                      background: i === activeFrame ? project.accentColor : "rgba(255,255,255,0.4)",
+                    }}
+                  />
+                </button>
+              ))}
+            </div>
               {/* Arrows — desktop only */}
               <div className="hidden md:flex items-center gap-2">
                 <button
@@ -343,7 +332,6 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
               </div>
             </div>
           </div>
-        </motion.div>
 
         {/* ── Case study content ── */}
         <motion.div
