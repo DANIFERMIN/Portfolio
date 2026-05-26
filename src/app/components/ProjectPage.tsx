@@ -44,9 +44,9 @@ const designFrames: Record<string, Frame[]> = {
     { src: createDesktopImg, objectPosition: "50% 30%", label: "Product Grid", caption: "Category grid: Prints, Photo Books, Mugs, Wall Art, AI Designer, Calendars — handoff covered all states, hover interactions, and responsive breakpoints.", isDesign: true },
   ],
   "esign-redesign": [
-    { src: esignImg, objectPosition: "50% 0%", label: "Overview", caption: "E-sign platform overview — entry point designed to serve three distinct user groups: document senders, signers, and enterprise IT admins simultaneously.", isDesign: true },
-    { src: esignImg, objectPosition: "50% 38%", label: "Signing Flow", caption: "Redesigned signing flow — progressive disclosure replaced the original 12-step linear process. Key actions surface contextually to reduce cognitive load.", isDesign: true },
-    { src: esignImg, objectPosition: "50% 72%", label: "Document Management", caption: "Document status view — streamlined to show what matters: pending signatures, completion status, and audit trail access in a single glance.", isDesign: true },
+    { src: esignImg, objectPosition: "8% 20%", label: "Overview", caption: "E-sign platform overview — entry point designed to serve three distinct user groups: document senders, signers, and enterprise IT admins simultaneously.", isDesign: true },
+    { src: esignImg, objectPosition: "42% 15%", label: "Signing Flow", caption: "Redesigned signing flow — progressive disclosure replaced the original 12-step linear process. Key actions surface contextually to reduce cognitive load.", isDesign: true },
+    { src: esignImg, objectPosition: "78% 8%", label: "Document Management", caption: "Document status view — streamlined to show what matters: pending signatures, completion status, and audit trail access in a single glance.", isDesign: true },
   ],
   "ai-journey": [
     { src: aiJourneyQ2Img, objectPosition: "50% 40%", label: "Personalization", caption: "Step 2 of 6 — role selection. The entire learning plan changes based on your job: Product Designer, UX Researcher, Design Manager, or VX Designer each get a different module set.", isDesign: true },
@@ -229,11 +229,11 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
             style={{ objectFit: "cover", objectPosition: current.objectPosition }}
           />
 
-          {/* Gradient scrim */}
+          {/* Gradient scrim — covers full image for badge and caption readability */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.6) 25%, rgba(0,0,0,0.2) 50%, transparent 100%)",
+              background: "linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.75) 80%, rgba(0,0,0,0.92) 100%)",
             }}
           />
 
@@ -241,10 +241,11 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
           <div className="absolute top-4 left-4 flex items-center gap-2">
             {current.isDesign && (
               <span
-                className="px-2 py-0.5 rounded-md text-white"
+                className="px-2.5 py-1 rounded-md text-white"
                 style={{
-                  background: "rgba(255,255,255,0.15)",
-                  border: "1px solid rgba(255,255,255,0.2)",
+                  background: "rgba(0,0,0,0.6)",
+                  backdropFilter: "blur(8px)",
+                  border: "1px solid rgba(255,255,255,0.15)",
                   fontFamily: "'Inter', sans-serif",
                   fontSize: "0.6rem",
                   fontWeight: 600,
@@ -258,8 +259,8 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
             <span
               className="px-3 py-1 rounded-full text-white"
               style={{
-                background: `${project.accentColor}55`,
-                border: `1px solid ${project.accentColor}88`,
+                background: `${project.accentColor}CC`,
+                border: `1px solid ${project.accentColor}`,
                 fontFamily: "'Inter', sans-serif",
                 fontSize: "0.7rem",
                 fontWeight: 600,
@@ -279,20 +280,20 @@ export function ProjectPage({ project, onBack }: ProjectPageProps) {
                 fontFamily: "'Inter', sans-serif",
                 fontSize: "0.82rem",
                 lineHeight: 1.55,
-                textShadow: "0 1px 3px rgba(0,0,0,0.5)",
+                textShadow: "0 1px 4px rgba(0,0,0,0.7), 0 0 12px rgba(0,0,0,0.4)",
                 maxWidth: "80%",
               }}
             >
               {current.caption}
             </p>
-            {/* Mobile caption — shorter */}
+            {/* Mobile caption */}
             <p
-              className="text-white/80 mb-3 md:hidden"
+              className="text-white mb-3 md:hidden"
               style={{
                 fontFamily: "'Inter', sans-serif",
                 fontSize: "0.75rem",
                 lineHeight: 1.45,
-                textShadow: "0 1px 3px rgba(0,0,0,0.5)",
+                textShadow: "0 1px 4px rgba(0,0,0,0.7), 0 0 12px rgba(0,0,0,0.4)",
               }}
             >
               {current.caption}
