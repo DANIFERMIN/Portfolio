@@ -902,9 +902,27 @@ export default function App() {
                   }}
                 >
                   <Figma size={16} aria-hidden="true" />
-                  Portfolio deck
+                  AI Workflow Case Study
                   <span className="sr-only">(opens in new tab)</span>
                 </a>
+                <span aria-hidden="true" className="opacity-40">·</span>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500 rounded"
+                  style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontWeight: 500,
+                    fontSize: "0.85rem",
+                    background: "none",
+                    border: "none",
+                    color: "inherit",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Download size={16} aria-hidden="true" />
+                  Save portfolio as PDF
+                </button>
                 <span aria-hidden="true" className="opacity-40">·</span>
                 <a
                   href="/CV_Daniela_Fermin_Bunge.pdf"
